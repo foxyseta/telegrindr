@@ -4,7 +4,8 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Main {
     
-    public static void main(String[] args) { // args = [botToken, creatorId]
+    public static void main(String[] args) // args = [botToken, creatorId]
+    {
         try {
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
             api.registerBot(new Macinino(args[0], Integer.parseInt(args[1])));
