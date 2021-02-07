@@ -1,4 +1,6 @@
 import java.util.EnumMap;
+import java.util.TreeSet;
+
 import org.telegram.telegrambots.meta.api.objects.Location;
 
 public class Profile {
@@ -31,5 +33,6 @@ public class Profile {
     String id,
            emoji = DEFAULTEMOJI;
     EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
+    TreeSet<String> hashtags = new TreeSet<String>();
     Location location;
 }
