@@ -4,7 +4,7 @@ public class Macinino extends AbilityBot {
 
     public static String USERNAME = "MacininoBot";
 
-    protected Macinino(String botToken, int creatorId) {
+    public Macinino(String botToken, int creatorId) {
         super(botToken, USERNAME);
         cId = creatorId;
     }
@@ -14,6 +14,6 @@ public class Macinino extends AbilityBot {
         return cId;
     }
 
-    protected int cId;
+    private int cId;
 
 }

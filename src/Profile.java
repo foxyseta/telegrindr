@@ -5,39 +5,6 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.telegram.telegrambots.meta.api.objects.Location;
 
-enum Stat {
-
-    AGE("yo", 14, 150), HEIGHT("cm", 50, 250), WEIGHT("kg", 25, 750);
-
-    Stat(String uom, int min, int max) {
-        if (min > max)
-            throw new IllegalArgumentException(
-                "Stat.Stat: min (" + min + ") > max (" + max + ")");
-        this.uom = uom;
-        this.min = min;
-        this.max = max;
-    }
-
-    public String uom() {
-        return uom;
-    }
-
-    public int min() {
-        return min;
-    }
-    
-    public int max() {
-        return max;
-    }
-
-    public boolean validate(int value) {
-        return min <= value && value <= max;
-    }
-
-    String uom;
-    int min, max;
-}
-
 public class Profile {
 
     public static final String DEFAULTEMOJI = "😀",
@@ -123,9 +90,9 @@ public class Profile {
     
     public Location location;
 
-    int id;
-    String userId, emoji = DEFAULTEMOJI;
-    EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
-    TreeSet<String> tags = new TreeSet<String>();
+    private int id;
+    private String userId, emoji = DEFAULTEMOJI;
+    private EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
+    private TreeSet<String> tags = new TreeSet<String>();
 
 }
