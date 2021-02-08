@@ -1,22 +1,41 @@
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.telegram.telegrambots.meta.api.objects.Location;
 
 enum Stat {
 
-    AGE("yo"), HEIGHT("cm"), WEIGHT("kg");
+    AGE("yo", 14, 150), HEIGHT("cm", 50, 250), WEIGHT("kg", 25, 750);
 
-    Stat(String uom) {
+    Stat(String uom, int min, int max) {
+        if (min > max)
+            throw new IllegalArgumentException(
+                "Stat.Stat: min (" + min + ") > max (" + max + ")");
         this.uom = uom;
+        this.min = min;
+        this.max = max;
     }
 
-    public String toString() {
+    public String uom() {
         return uom;
     }
 
-    String uom;
+    public int min() {
+        return min;
+    }
+    
+    public int max() {
+        return max;
+    }
 
+    public boolean validate(int value) {
+        return min <= value && value <= max;
+    }
+
+    String uom;
+    int min, max;
 }
 
 public class Profile {
@@ -66,12 +85,46 @@ public class Profile {
         this.emoji = emoji;
     }
 
-    // TODO stats, hashtags
+    public boolean containsStat(Stat key) {
+        return stats.containsKey(key);
+    }
 
+    public Integer getStat(Stat key) {
+        return stats.get(key);
+    }
+
+    public Integer putStat(Stat key, Integer value) {
+        if (key.validate(value))
+            return stats.put(key, value);
+        throw new IllegalArgumentException(
+            "Profile.putStat: " + value + " " + key.uom +
+            " is no valid stat");
+    }
+    
+    public Integer removeStat(Stat key) {
+        return stats.remove(key);
+    }
+    
+    public boolean containsTag(String tag) {
+        return tags.contains(tag);
+    }
+
+    public SortedSet<String> unmodifiableTags() {
+        return Collections.unmodifiableSortedSet(tags);
+    }
+    
+    public boolean addTag(String tag) {
+        return tags.add(tag);
+    }
+    
+    public boolean removeTag(String tag) {
+        return tags.remove(tag);
+    }
+    
     public Location location;
 
     int id;
     String userId, emoji = DEFAULTEMOJI;
     EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
-    TreeSet<String> hashtags = new TreeSet<String>();
+    TreeSet<String> tags = new TreeSet<String>();
 }
