@@ -4,15 +4,13 @@ public class Macinino extends AbilityBot {
 
     public static String USERNAME = "MacininoBot";
 
-    protected Macinino(String botToken, int creatorId)
-    {
+    protected Macinino(String botToken, int creatorId) {
         super(botToken, USERNAME);
         cId = creatorId;
     }
 
     @Override
-    public int creatorId()
-    {
+    public int creatorId() {
         return cId;
     }
 
