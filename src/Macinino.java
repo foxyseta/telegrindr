@@ -15,4 +15,5 @@ public class Macinino extends AbilityBot {
     }
 
     protected int cId;
+
 }

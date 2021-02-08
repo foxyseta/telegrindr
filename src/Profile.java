@@ -127,4 +127,5 @@ public class Profile {
     String userId, emoji = DEFAULTEMOJI;
     EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
     TreeSet<String> tags = new TreeSet<String>();
+
 }
