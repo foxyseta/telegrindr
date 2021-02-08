@@ -1,3 +1,5 @@
+package data;
+
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.SortedSet;
@@ -64,7 +66,7 @@ public class Profile {
         if (key.validate(value))
             return stats.put(key, value);
         throw new IllegalArgumentException(
-            "Profile.putStat: " + value + " " + key.uom +
+            "Profile.putStat: " + value + " " + key.uom() +
             " is no valid stat");
     }
     
