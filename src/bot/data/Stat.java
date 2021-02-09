@@ -1,4 +1,4 @@
-package data;
+package bot.data;
 
 public enum Stat {
 

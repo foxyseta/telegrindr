@@ -1,4 +1,4 @@
-package data;
+package bot.data;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -9,13 +9,11 @@ import org.telegram.telegrambots.meta.api.objects.Location;
 
 public class Profile {
 
-    public static final String DEFAULTEMOJI = "😀",
-                               USERIDREGEX = "[a-z0-9]{5,32}",
+    final public static String DEFAULTEMOJI = "😀",
                                EMOJIREGEX = "([\\u20a0-\\u32ff\\ud83c"
                                           + "\\udc00-\\ud83d\\udeff\\udbb9"
                                           + "\\udce5-\\udbb9\\udcee])";
-    public static final Pattern USERIDPATTERN = Pattern.compile(USERIDREGEX),
-                                EMOJIPATTERN = Pattern.compile(EMOJIREGEX);
+    final public static Pattern EMOJIPATTERN = Pattern.compile(EMOJIREGEX);
 
     public Location location;
 
@@ -32,17 +30,6 @@ public class Profile {
             throw new IllegalArgumentException(
                 "Profile.setId: " + id + " is negative");
         this.id = id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        if (!USERIDPATTERN.matcher(userId).matches())
-            throw new IllegalArgumentException(
-                "Profile.setId: Telegram User IDs must follow " + USERIDREGEX);
-        this.userId = userId;
     }
 
     public String getEmoji() {
@@ -93,7 +80,7 @@ public class Profile {
     }
     
     private int id;
-    private String userId, emoji = DEFAULTEMOJI;
+    private String emoji = DEFAULTEMOJI;
     private EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
     private TreeSet<String> tags = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 

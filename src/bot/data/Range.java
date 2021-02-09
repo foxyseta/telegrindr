@@ -1,4 +1,4 @@
-package data;
+package bot.data;
 
 public class Range<T extends Comparable<? super T>> {
     

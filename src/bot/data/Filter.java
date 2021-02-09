@@ -1,4 +1,4 @@
-package data;
+package bot.data;
 
 import java.util.EnumMap;
 import java.util.SortedSet;
