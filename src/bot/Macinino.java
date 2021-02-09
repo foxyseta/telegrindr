@@ -4,10 +4,8 @@ import org.telegram.abilitybots.api.bot.AbilityBot;
 
 public class Macinino extends AbilityBot {
 
-    public static String USERNAME = "MacininoBot";
-
-    public Macinino(String botToken, int creatorId) {
-        super(botToken, USERNAME);
+    public Macinino(String botToken, String username, int creatorId) {
+        super(botToken, username);
         cId = creatorId;
     }
 

@@ -4,13 +4,15 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 public class Main {
     
-    public static void main(String[] args) { // args = [botToken, creatorId]
+    // args = [botToken, botUsername, creatorId]
+    public static void main(String[] args) {
         try {
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
-            api.registerBot(new bot.Macinino(args[0], Integer.parseInt(args[1])));
+            api.registerBot(new bot.Macinino(args[0], args[1],
+                                             Integer.parseInt(args[2])));
         } catch (ArrayIndexOutOfBoundsException e) {
-            System.out.println("Main: needs a bot token and a creator ID"
-                               + " (both passed as arguments)");
+            System.out.println("Main: needs a bot token, a bot username,"
+                               + " and a creator ID (both passed as arguments)");
         } catch (NumberFormatException e) {
             System.out.println("Main: the creator ID should be an integer");
         } catch (TelegramApiException e) {
