@@ -1,21 +1,15 @@
 package data;
 
 import java.util.EnumMap;
+import java.util.SortedSet;
+import static java.lang.Math.*;
+import org.telegram.telegrambots.meta.api.objects.Location;
 
 public class Filter {
     
-    public boolean validate(Profile profile) {
-        // TODO validate
-        return false;
-    }
-    
-    public EnumMap<Stat, Range<Integer>> stats =
-        new EnumMap<Stat, Range<Integer>>(Stat.class);
-    public Range<Double> distance;
-
     public interface Query {
 
-        public boolean validate(String tag);
+        public boolean validate(SortedSet<String> tags);
 
     }
 
@@ -27,8 +21,8 @@ public class Filter {
 
         public String tag;
 
-        public boolean validate(String tag) {
-           return this.tag.equalsIgnoreCase(tag);
+        public boolean validate(SortedSet<String> tags) {
+           return tags.contains(this.tag);
         }
         
     }
@@ -41,8 +35,8 @@ public class Filter {
         
         public Query query;
 
-        public boolean validate(String tag) {
-            return !query.validate(tag);
+        public boolean validate(SortedSet<String> tags) {
+            return !query.validate(tags);
         }
 
     }
@@ -56,12 +50,48 @@ public class Filter {
         
         public Query queryA, queryB;
 
-        public boolean validate(String tag) {
-            return queryA.validate(tag) && queryB.validate(tag);
+        public boolean validate(SortedSet<String> tags) {
+            return queryA.validate(tags) && queryB.validate(tags);
         }
         
     }
 
+    final public static double EARTHRADIUS = 6371005.076123; // m (average)
+
+    public EnumMap<Stat, Range<Integer>> statFilters =
+        new EnumMap<Stat, Range<Integer>>(Stat.class);
+    public Location location;
+    public Range<Double> distanceFilter;
     public Query query;
 
+    public boolean validate(Profile profile) {
+        // stat filters
+        for (Stat stat : Stat.values())
+            if (statFilters.containsKey(stat) && (!profile.containsStat(stat)
+                || !statFilters.get(stat).contains(profile.getStat(stat))))
+                return false;
+        // distance filter
+        if (!distanceFilter.contains(distance(location, profile.location)))
+            return false;
+        // tags query
+        if (query == null)
+            return true;
+        return query.validate(profile.unmodifiableTags());
+    }
+    
+    // Haversine method
+    private Double distance(Location l1, Location l2) {
+        final double lat1 = l1.getLatitude(),
+                     lon1 = l1.getLongitude(),
+                     lat2 = l2.getLatitude(),
+                     lon2 = l2.getLongitude(),
+                     deltaLat = toRadians(lat2 - lat1),
+                     deltaLon = toRadians(lon2 - lon1),
+                     a = sin(deltaLat / 2) * sin(deltaLat / 2)
+                       + cos(toRadians(lat1)) * cos(toRadians(lat2))
+                       * sin(deltaLon / 2) * sin(deltaLon / 2),
+                     c = 2 * atan2(sqrt(a), sqrt(1 - a));
+        return EARTHRADIUS * c;
+    }
+    
 }

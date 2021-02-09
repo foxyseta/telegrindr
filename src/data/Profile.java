@@ -17,6 +17,8 @@ public class Profile {
     public static final Pattern USERIDPATTERN = Pattern.compile(USERIDREGEX),
                                 EMOJIPATTERN = Pattern.compile(EMOJIREGEX);
 
+    public Location location;
+
     public Profile(int id) {
         setId(id);
     }
@@ -90,11 +92,9 @@ public class Profile {
         return tags.remove(tag);
     }
     
-    public Location location;
-
     private int id;
     private String userId, emoji = DEFAULTEMOJI;
     private EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
-    private TreeSet<String> tags = new TreeSet<String>();
+    private TreeSet<String> tags = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
 }
