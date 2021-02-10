@@ -4,6 +4,7 @@ import bot.data.Profile;
 import bot.data.Stat;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,17 +12,34 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.telegram.abilitybots.api.bot.AbilityBot;
-import org.telegram.abilitybots.api.objects.Ability;
-import org.telegram.abilitybots.api.objects.Flag;
-import org.telegram.abilitybots.api.objects.Locality;
-import org.telegram.abilitybots.api.objects.MessageContext;
-import org.telegram.abilitybots.api.objects.Privacy;
-import org.telegram.abilitybots.api.objects.Reply;
+import org.telegram.abilitybots.api.objects.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+enum CallbackQuery {
+
+    CONFIRMLOCATION("confirmLocation"),
+    CANCELLOCATION("cancelLocation");
+    
+    CallbackQuery(String data) {
+        this.data = data;
+    }
+    
+    public String data() {
+        return data;
+    }
+
+    private String data;
+
+    public Predicate<Update> isQueried = upd -> {
+        return upd.hasCallbackQuery() &&
+               upd.getCallbackQuery().getData().equals(data);
+    };
+
+}
 
 public class Macinino extends AbilityBot {
 
@@ -49,7 +67,13 @@ public class Macinino extends AbilityBot {
     }
 
     public Reply onSentLocation() {
-        return Reply.of(onSentLocationAction, Flag.LOCATION);
+        return Reply.of(onSentLocationAction.andThen(onSentLocationReply),
+                        Flag.LOCATION);
+    }
+
+    public Reply onConfirmedLocation() {
+        return Reply.of(onConfirmedLocationAction,
+                        CallbackQuery.CONFIRMLOCATION.isQueried);
     }
 
     private int cId;
@@ -62,10 +86,10 @@ public class Macinino extends AbilityBot {
         STATARGUMENTPATTERN = Pattern.compile(STATARGUMENTREGEX),
         RANGEARGUMENTPATTERN = Pattern.compile(RANGEARGUMENTREGEX);
 
-    private Profile getProfile(MessageContext ctx) {
+    private Profile getProfile(Long chatId, int userId) {
         final Map<Integer, Profile> profiles =
-            db.getMap(ctx.chatId().toString());
-        final int id = ctx.user().getId();
+            db.getMap(chatId.toString());
+        final int id = userId;
         if (!profiles.containsKey(id))
             return profiles.put(id, new Profile(id));
         else
@@ -102,14 +126,20 @@ public class Macinino extends AbilityBot {
         return true;
     }
 
-    private Consumer<MessageContext> iamAction = ctx -> {
-        final Profile profile = getProfile(ctx);
+    final private Consumer<MessageContext> iamAction = ctx -> {
+        final Profile profile = getProfile(ctx.chatId(), ctx.user().getId());
         for (String argument : ctx.arguments())     
             if (!update(profile, argument))
                 silent.send(argument + " ❓", ctx.chatId());
     };
 
-    private Consumer<Update> onSentLocationAction = upd -> {
+    final private Consumer<Update> onSentLocationAction = upd -> {
+        getProfile(upd.getMessage().getChatId(),
+                   upd.getMessage().getFrom().getId()).lastSentLocation =
+            upd.getMessage().getLocation();
+    };
+
+    final private Consumer<Update> onSentLocationReply = upd -> {
         SendMessage message = new SendMessage();
 
         message.setChatId(Long.toString(upd.getMessage().getChatId()));
@@ -121,8 +151,16 @@ public class Macinino extends AbilityBot {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
-        row.add(new InlineKeyboardButton("✔️"));
-        row.add(new InlineKeyboardButton("❌"));
+        InlineKeyboardButton confirmLocationButton = new InlineKeyboardButton("✔️");
+        confirmLocationButton.setCallbackData(
+            CallbackQuery.CONFIRMLOCATION.data()
+        );
+        row.add(confirmLocationButton);
+        InlineKeyboardButton cancelLocationButton = new InlineKeyboardButton("❌");
+        cancelLocationButton.setCallbackData(
+            CallbackQuery.CANCELLOCATION.data()
+        );
+        row.add(cancelLocationButton);
         keyboard.add(row);
         keyboardMarkup.setKeyboard(keyboard);
         message.setReplyMarkup(keyboardMarkup);
@@ -133,5 +171,12 @@ public class Macinino extends AbilityBot {
             e.printStackTrace();
         } 
     };
+    
+    final private Consumer<Update> onConfirmedLocationAction = upd -> {
+        final Profile profile = getProfile(upd.getMessage().getChatId(),
+                   upd.getMessage().getFrom().getId());
+        profile.location = profile.lastSentLocation;
+        profile.lastSentLocation = null;
+    }; 
 
 }

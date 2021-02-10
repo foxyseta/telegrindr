@@ -15,7 +15,7 @@ public class Profile {
                                           + "\\udce5-\\udbb9\\udcee])";
     final public static Pattern EMOJIPATTERN = Pattern.compile(EMOJIREGEX);
 
-    public Location location;
+    public Location location, lastSentLocation;
 
     public Profile(int id) {
         setId(id);
