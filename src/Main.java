@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
-            api.registerBot(new bot.Macinino(args[0], args[1],
+            api.registerBot(new bot.TeleGrindr(args[0], args[1],
                                              Integer.parseInt(args[2])));
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Main: needs a bot token, a bot username,"

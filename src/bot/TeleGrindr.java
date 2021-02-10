@@ -41,9 +41,9 @@ enum CallbackQuery {
 
 }
 
-public class Macinino extends AbilityBot {
+public class TeleGrindr extends AbilityBot {
 
-    public Macinino(String botToken, String username, int creatorId) {
+    public TeleGrindr(String botToken, String username, int creatorId) {
         super(botToken, username);
         cId = creatorId;
     }
