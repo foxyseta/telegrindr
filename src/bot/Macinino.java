@@ -4,15 +4,24 @@ import bot.data.Profile;
 import bot.data.Stat;
 
 import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.Ability;
+import org.telegram.abilitybots.api.objects.Flag;
 import org.telegram.abilitybots.api.objects.Locality;
 import org.telegram.abilitybots.api.objects.MessageContext;
 import org.telegram.abilitybots.api.objects.Privacy;
+import org.telegram.abilitybots.api.objects.Reply;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class Macinino extends AbilityBot {
 
@@ -30,11 +39,17 @@ public class Macinino extends AbilityBot {
         return Ability
                 .builder()
                 .name("iam")
+                .info("edits your profile")
                 .input(0)
                 .locality(Locality.GROUP)
                 .privacy(Privacy.PUBLIC)
                 .action(iamAction)
+                .enableStats()
                 .build();
+    }
+
+    public Reply onSentLocation() {
+        return Reply.of(onSentLocationAction, Flag.LOCATION);
     }
 
     private int cId;
@@ -76,8 +91,13 @@ public class Macinino extends AbilityBot {
                             profile.putStat(stat, value);
                         break;
                     }
-            } else
-                return false;
+            } else {
+                matcher = Profile.EMOJIPATTERN.matcher(argument);
+                if (matcher.matches())
+                    profile.setEmoji(argument);
+                else
+                    return false;
+            }
         }
         return true;
     }
@@ -87,6 +107,31 @@ public class Macinino extends AbilityBot {
         for (String argument : ctx.arguments())     
             if (!update(profile, argument))
                 silent.send(argument + " ❓", ctx.chatId());
+    };
+
+    private Consumer<Update> onSentLocationAction = upd -> {
+        SendMessage message = new SendMessage();
+
+        message.setChatId(Long.toString(upd.getMessage().getChatId()));
+        
+        message.setReplyToMessageId(upd.getMessage().getMessageId());
+
+        message.setText("Should I set this as your current location?");
+
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(new InlineKeyboardButton("✔️"));
+        row.add(new InlineKeyboardButton("❌"));
+        keyboard.add(row);
+        keyboardMarkup.setKeyboard(keyboard);
+        message.setReplyMarkup(keyboardMarkup);
+        
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        } 
     };
 
 }
