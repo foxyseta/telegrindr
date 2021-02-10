@@ -78,7 +78,7 @@ public class TeleGrindr extends AbilityBot {
 
     private int cId;
     final private static String
-        TAGARGUMENTREGEX = "([+-]?)#(0-9A-Za-z+).*",
+        TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*",
         STATARGUMENTREGEX = "(\\d+)(.+)",
         RANGEARGUMENTREGEX = "(\\d*),?(\\d*)(.+)";
     final private static Pattern
@@ -89,11 +89,10 @@ public class TeleGrindr extends AbilityBot {
     private Profile getProfile(Long chatId, int userId) {
         final Map<Integer, Profile> profiles =
             db.getMap(chatId.toString());
-        final int id = userId;
-        if (!profiles.containsKey(id))
-            return profiles.put(id, new Profile(id));
+        if (!profiles.containsKey(userId))
+            return profiles.put(userId, new Profile(userId));
         else
-            return profiles.get(id);
+            return profiles.get(userId);
     }
 
     private boolean update(Profile profile, String argument) {
@@ -130,7 +129,8 @@ public class TeleGrindr extends AbilityBot {
         final Profile profile = getProfile(ctx.chatId(), ctx.user().getId());
         for (String argument : ctx.arguments())     
             if (!update(profile, argument))
-                silent.send(argument + " ❓", ctx.chatId());
+                silent.send(argument + "❓", ctx.chatId());
+        silent.send("/iam", ctx.chatId());
     };
 
     final private Consumer<Update> onSentLocationAction = upd -> {
