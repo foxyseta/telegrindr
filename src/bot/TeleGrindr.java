@@ -6,6 +6,7 @@ import bot.data.Stat;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -88,11 +89,12 @@ public class TeleGrindr extends AbilityBot {
 
     private Profile getProfile(Long chatId, int userId) {
         final Map<Integer, Profile> profiles =
-            db.getMap(chatId.toString());
-        if (!profiles.containsKey(userId))
-            return profiles.put(userId, new Profile(userId));
-        else
+            db.getMap("Profiles_" + chatId.toString());
+        if (profiles.containsKey(userId))
             return profiles.get(userId);
+        final Profile newProfile = new Profile(userId);
+        profiles.put(userId, newProfile);
+        return newProfile;
     }
 
     private boolean update(Profile profile, String argument) {
@@ -130,7 +132,6 @@ public class TeleGrindr extends AbilityBot {
         for (String argument : ctx.arguments())     
             if (!update(profile, argument))
                 silent.send(argument + "❓", ctx.chatId());
-        silent.send("/iam", ctx.chatId());
     };
 
     final private Consumer<Update> onSentLocationAction = upd -> {
