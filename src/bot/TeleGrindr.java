@@ -12,6 +12,7 @@ import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 public class TeleGrindr extends AbilityBot {
 
@@ -49,13 +50,14 @@ public class TeleGrindr extends AbilityBot {
         STATARGUMENTPATTERN = Pattern.compile(STATARGUMENTREGEX),
         RANGEARGUMENTPATTERN = Pattern.compile(RANGEARGUMENTREGEX);
 
-    private Profile getProfile(Long chatId, int userId) {
+    private Profile getProfile(Long chatId, User user) {
         final Map<Integer, Profile> profiles =
             db.getMap("Profiles_" + chatId.toString());
+        final Integer userId = user.getId();
         if (profiles.containsKey(userId))
             return profiles.get(userId);
-        final Profile newProfile = new Profile(userId);
-        profiles.put(userId, newProfile);
+        final Profile newProfile = new Profile(user);
+        profiles.put(user.getId(), newProfile);
         return newProfile;
     }
 
@@ -90,7 +92,7 @@ public class TeleGrindr extends AbilityBot {
     }
 
     final private Consumer<MessageContext> iamAction = ctx -> {
-        final Profile profile = getProfile(ctx.chatId(), ctx.user().getId());
+        final Profile profile = getProfile(ctx.chatId(), ctx.user());
         for (String argument : ctx.arguments())     
             if (!update(profile, argument))
                 silent.send(argument + "❓", ctx.chatId());
@@ -99,7 +101,7 @@ public class TeleGrindr extends AbilityBot {
     final private Consumer<Update> iamReply = upd -> {
         final Message message = upd.getMessage();
         getProfile(upd.getMessage().getChatId(),
-                   upd.getMessage().getFrom().getId()).location =
+                   upd.getMessage().getFrom()).location =
             message.getLocation();
     };
 

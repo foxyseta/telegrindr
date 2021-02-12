@@ -4,32 +4,22 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import org.telegram.telegrambots.meta.api.objects.Location;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 public class Profile implements java.io.Serializable {
 
     final public static String DEFAULTEMOJI = "😀",
-                               EMOJIREGEX = "([\\u20a0-\\u32ff\\ud83c"
-                                          + "\\udc00-\\ud83d\\udeff\\udbb9"
-                                          + "\\udce5-\\udbb9\\udcee])";
+                               EMOJIREGEX = "[^\\p{L}\\p{N}\\p{P}\\p{Z}]";
     final public static Pattern EMOJIPATTERN = Pattern.compile(EMOJIREGEX);
 
+    public User user;
     public Location location;
 
-    public Profile(int id) {
-        setId(id);
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        if (id < 0)
-            throw new IllegalArgumentException(
-                "Profile.setId: " + id + " is negative");
-        this.id = id;
+    public Profile(User user) {
+        this.user = user;
     }
 
     public String getEmoji() {
@@ -78,9 +68,22 @@ public class Profile implements java.io.Serializable {
     public boolean removeTag(String tag) {
         return tags.remove(tag);
     }
-    
+
+    public String toString() {
+        String res = String.format(
+            "%s **%s %s** @%s %s%n💬 %s%n",
+            emoji, user.getFirstName(), user.getLastName(), user.getUserName(),
+            emoji, user.getLanguageCode());
+        if (!stats.isEmpty())
+            res += "📋";
+        for (Entry<Stat, Integer> entry : stats.entrySet())
+            res += " " + entry.getValue() + " " + entry.getKey().uom();
+        res += String.format("%n");
+        for (String tag : tags)
+            res += "#" + tag + " ";
+        return res;
+    }
 	private static final long serialVersionUID = 4124174882150000215L;
-    private int id;
     private String emoji = DEFAULTEMOJI;
     private EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
     private TreeSet<String> tags = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
