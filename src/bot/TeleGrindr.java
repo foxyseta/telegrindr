@@ -6,7 +6,6 @@ import bot.data.Stat;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;

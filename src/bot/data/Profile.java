@@ -7,7 +7,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 import org.telegram.telegrambots.meta.api.objects.Location;
 
-public class Profile {
+public class Profile implements java.io.Serializable {
 
     final public static String DEFAULTEMOJI = "😀",
                                EMOJIREGEX = "([\\u20a0-\\u32ff\\ud83c"
@@ -79,6 +79,7 @@ public class Profile {
         return tags.remove(tag);
     }
     
+	private static final long serialVersionUID = 4124174882150000215L;
     private int id;
     private String emoji = DEFAULTEMOJI;
     private EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);
