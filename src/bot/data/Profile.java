@@ -71,13 +71,14 @@ public class Profile implements java.io.Serializable {
 
     public String toString() {
         String res = String.format(
-            "%s **%s %s** @%s %s%n💬 %s%n",
-            emoji, user.getFirstName(), user.getLastName(), user.getUserName(),
-            emoji, user.getLanguageCode());
+            "%s **%s%s** @%s %s%n💬 %s%n",
+            emoji, user.getFirstName(),
+            user.getLastName() == null ? "" : " " + user.getLastName(),
+            user.getUserName(), emoji, user.getLanguageCode());
         if (!stats.isEmpty())
             res += "📋";
         for (Entry<Stat, Integer> entry : stats.entrySet())
-            res += " " + entry.getValue() + " " + entry.getKey().uom();
+            res += " " + entry.getValue() + entry.getKey().uom();
         res += String.format("%n");
         for (String tag : tags)
             res += "#" + tag + " ";
