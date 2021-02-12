@@ -15,7 +15,7 @@ public class Profile implements java.io.Serializable {
                                           + "\\udce5-\\udbb9\\udcee])";
     final public static Pattern EMOJIPATTERN = Pattern.compile(EMOJIREGEX);
 
-    public Location location, lastSentLocation;
+    public Location location;
 
     public Profile(int id) {
         setId(id);
