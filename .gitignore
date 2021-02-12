@@ -27,3 +27,6 @@ hs_err_pid*
 
 # VS Code
 /.vscode
+
+# Hidden files
+.*
