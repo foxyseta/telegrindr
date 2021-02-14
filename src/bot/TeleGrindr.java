@@ -56,6 +56,19 @@ public class TeleGrindr extends AbilityBot {
                 .build();
     }
 
+    public Ability whois() {
+        return Ability
+                .builder()
+                .name("whois")
+                .info("searches for profiles")
+                .input(0)
+                .locality(Locality.GROUP)
+                .privacy(Privacy.PUBLIC)
+                .action(whoisAction)
+                .enableStats()
+                .build();
+    }
+
     public void print(Profile p, Long chatId) {
         silent.sendMd(p.toString(), chatId);
         if (p.location != null) {
@@ -170,4 +183,7 @@ public class TeleGrindr extends AbilityBot {
             silent.send(String.format(UNKNOWNARGUMENT, TAGPREFIX + tag), chat);
     };
 
+    final private Consumer<MessageContext> whoisAction = ctx -> {
+
+    };
 }

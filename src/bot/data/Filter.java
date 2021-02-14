@@ -7,6 +7,10 @@ import org.telegram.telegrambots.meta.api.objects.Location;
 
 public class Filter {
     
+    public Filter(String[] arguments) {
+        // TODO
+    }
+
     public interface Query {
 
         public boolean validate(SortedSet<String> tags);
@@ -58,27 +62,29 @@ public class Filter {
 
     final public static double EARTHRADIUS = 6371005.076123; // m (average)
 
-    public EnumMap<Stat, Range<Integer>> statFilters =
-        new EnumMap<Stat, Range<Integer>>(Stat.class);
-    public Location location;
-    public Range<Double> distanceFilter;
-    public Query query;
-
-    public boolean validate(Profile profile) {
+    public boolean validate(Profile profile, Location from) {
         // stat filters
         for (Stat stat : Stat.values())
             if (statFilters.containsKey(stat) && (!profile.containsStat(stat)
                 || !statFilters.get(stat).contains(profile.getStat(stat))))
                 return false;
         // distance filter
-        if (!distanceFilter.contains(distance(location, profile.location)))
+        if (!distanceFilter.contains(distance(from, profile.location)))
             return false;
         // tags query
-        if (query == null)
+        if (queries == null)
             return true;
-        return query.validate(profile.unmodifiableTags());
+        for (Query query : queries)
+            if (!query.validate(profile.unmodifiableTags())) 
+                return false;
+        return true;
     }
     
+    private EnumMap<Stat, Range<Integer>> statFilters =
+        new EnumMap<Stat, Range<Integer>>(Stat.class);
+    private Range<Double> distanceFilter;
+    private Query[] queries;
+
     // Haversine method
     private Double distance(Location l1, Location l2) {
         final double lat1 = l1.getLatitude(),
