@@ -1,14 +1,20 @@
 package bot.data;
 
 import java.util.EnumMap;
+import java.util.function.Predicate;
+import java.util.HashSet;
 import java.util.SortedSet;
 import static java.lang.Math.*;
 import org.telegram.telegrambots.meta.api.objects.Location;
 
-public class Filter {
+public class Filter implements Predicate<Profile> {
     
-    public Filter(String[] arguments) {
-        // TODO
+    final public static String RANGEARGUMENTREGEX = "(\\d*),?(\\d*)(.+)";
+    final public static double EARTHRADIUS = 6371005.076123; // m (average)
+    public Location from;
+
+    public Filter(String[] arguments, Location from) {
+        this.from = from;
     }
 
     public interface Query {
@@ -60,16 +66,16 @@ public class Filter {
         
     }
 
-    final public static double EARTHRADIUS = 6371005.076123; // m (average)
-
-    public boolean validate(Profile profile, Location from) {
+    @Override
+    public boolean test(Profile profile) {
         // stat filters
         for (Stat stat : Stat.values())
             if (statFilters.containsKey(stat) && (!profile.containsStat(stat)
                 || !statFilters.get(stat).contains(profile.getStat(stat))))
                 return false;
         // distance filter
-        if (!distanceFilter.contains(distance(from, profile.location)))
+        if (distanceFilter != null &&
+            !distanceFilter.contains(distance(from, profile.location)))
             return false;
         // tags query
         if (queries == null)
@@ -83,7 +89,7 @@ public class Filter {
     private EnumMap<Stat, Range<Integer>> statFilters =
         new EnumMap<Stat, Range<Integer>>(Stat.class);
     private Range<Double> distanceFilter;
-    private Query[] queries;
+    private HashSet<Query> queries = new HashSet<Query>();
 
     // Haversine method
     private Double distance(Location l1, Location l2) {
@@ -99,5 +105,5 @@ public class Filter {
                      c = 2 * atan2(sqrt(a), sqrt(1 - a));
         return EARTHRADIUS * c;
     }
-    
+
 }

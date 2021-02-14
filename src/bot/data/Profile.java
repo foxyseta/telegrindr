@@ -84,6 +84,11 @@ public class Profile implements java.io.Serializable {
             res += "#" + tag + " ";
         return res;
     }
+
+    public String toShortString() {
+        return String.format("%s @%s", emoji, user.getUserName());
+    }
+
 	private static final long serialVersionUID = 4124174882150000215L;
     private String emoji = DEFAULTEMOJI;
     private EnumMap<Stat, Integer> stats = new EnumMap<Stat, Integer>(Stat.class);

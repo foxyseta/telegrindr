@@ -1,5 +1,6 @@
 package bot;
 
+import bot.data.Filter;
 import bot.data.Profile;
 import bot.data.Stat;
 
@@ -8,10 +9,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.telegram.abilitybots.api.bot.AbilityBot;
 import org.telegram.abilitybots.api.objects.*;
 import org.telegram.telegrambots.meta.api.methods.send.SendLocation;
+import org.telegram.telegrambots.meta.api.objects.Location;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -84,20 +88,29 @@ public class TeleGrindr extends AbilityBot {
             }
         }
     }
+
+    public void print(Stream<Profile> s, Long chatId) {
+        silent.send(String.format(PEOPLECOUNTER, s.count())
+                    + s.map(p -> p.toShortString())
+                       .collect(Collectors.joining(String.format("%n"),
+                                                   String.format("%n"), "")),
+                    chatId);
+    }
+
     private int cId;
     final private static char TAGPREFIX = '@';
     final private static String
         REMOVETAGARGUMENTPREFIX = "-",
         TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*",
         STATARGUMENTREGEX = "(\\d+)(.+)",
-        RANGEARGUMENTREGEX = "(\\d*),?(\\d*)(.+)",
         PROFILESTABLE = "Profiles_%d",
-        UNKNOWNARGUMENT = "%s❓";
+        UNKNOWNARGUMENT = "%s❓",
+        LOCATIONLABEL = "📍",
+        PEOPLECOUNTER = "👤 × %d";
     final private static Pattern
         TAGARGUMENTPATTERN = Pattern.compile(TAGARGUMENTREGEX),
-        STATARGUMENTPATTERN = Pattern.compile(STATARGUMENTREGEX),
-        RANGEARGUMENTPATTERN = Pattern.compile(RANGEARGUMENTREGEX);
-
+        STATARGUMENTPATTERN = Pattern.compile(STATARGUMENTREGEX);
+        
     private Profile getProfile(Long chatId, User user) {
         final Map<Integer, Profile> profiles =
             db.getMap(String.format(PROFILESTABLE, chatId));
@@ -184,6 +197,13 @@ public class TeleGrindr extends AbilityBot {
     };
 
     final private Consumer<MessageContext> whoisAction = ctx -> {
-
+        final Long chat = ctx.chatId();
+        final Location from = getProfile(chat, ctx.user()).location;
+        if (from != null) {
+            final Stream<Profile> results = db
+                .<Integer, Profile>getMap(String.format(PROFILESTABLE, chat))
+                .values().stream().filter(new Filter(ctx.arguments(), from));
+        } else
+            silent.send(String.format(UNKNOWNARGUMENT, LOCATIONLABEL), chat);
     };
 }
