@@ -95,6 +95,11 @@ public class TeleGrindr extends AbilityBot {
         return newProfile;
     }
 
+    private Profile setProfile(Long chatId, Profile profile) {
+        return db.<Integer, Profile>getMap("Profiles_" + chatId.toString())
+                 .put(profile.user.getId(), profile);
+    }
+
     private boolean update(Profile profile, String argument) {
         Matcher matcher = TAGARGUMENTPATTERN.matcher(argument);
         if (matcher.matches()) {
@@ -132,6 +137,7 @@ public class TeleGrindr extends AbilityBot {
             if (!update(profile, argument))
                 silent.send(argument + "❓", ctx.chatId());
         print(profile, chat);
+        setProfile(chat, profile);
     };
     
     final private Consumer<Update> iamReply = upd -> {
@@ -139,6 +145,7 @@ public class TeleGrindr extends AbilityBot {
         final Profile profile = getProfile(upd.getMessage().getChatId(),
                                            upd.getMessage().getFrom());
         profile.location = message.getLocation();
+        setProfile(message.getChatId(), profile);
         print(profile, upd.getMessage().getChatId());
     };
 
