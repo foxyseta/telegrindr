@@ -72,10 +72,14 @@ public class TeleGrindr extends AbilityBot {
         }
     }
     private int cId;
+    final private static char TAGPREFIX = '@';
     final private static String
+        REMOVETAGARGUMENTPREFIX = "-",
         TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*",
         STATARGUMENTREGEX = "(\\d+)(.+)",
-        RANGEARGUMENTREGEX = "(\\d*),?(\\d*)(.+)";
+        RANGEARGUMENTREGEX = "(\\d*),?(\\d*)(.+)",
+        PROFILESTABLE = "Profiles_%d",
+        UNKNOWNARGUMENT = "%s❓";
     final private static Pattern
         TAGARGUMENTPATTERN = Pattern.compile(TAGARGUMENTREGEX),
         STATARGUMENTPATTERN = Pattern.compile(STATARGUMENTREGEX),
@@ -83,7 +87,7 @@ public class TeleGrindr extends AbilityBot {
 
     private Profile getProfile(Long chatId, User user) {
         final Map<Integer, Profile> profiles =
-            db.getMap("Profiles_" + chatId.toString());
+            db.getMap(String.format(PROFILESTABLE, chatId));
         final Integer userId = user.getId();
         if (profiles.containsKey(userId)) {
             final Profile oldProfile = profiles.get(userId);
@@ -96,7 +100,7 @@ public class TeleGrindr extends AbilityBot {
     }
 
     private Profile setProfile(Long chatId, Profile profile) {
-        return db.<Integer, Profile>getMap("Profiles_" + chatId.toString())
+        return db.<Integer, Profile>getMap(String.format(PROFILESTABLE, chatId))
                  .put(profile.user.getId(), profile);
     }
 
@@ -104,7 +108,7 @@ public class TeleGrindr extends AbilityBot {
         Matcher matcher = TAGARGUMENTPATTERN.matcher(argument);
         if (matcher.matches()) {
             String tag = matcher.group(2);
-            if (matcher.group(1).equals("-"))
+            if (matcher.group(1).equals(REMOVETAGARGUMENTPREFIX))
                 profile.removeTag(tag);
             else
                 profile.addTag(tag);
@@ -135,7 +139,8 @@ public class TeleGrindr extends AbilityBot {
         final Profile profile = getProfile(ctx.chatId(), ctx.user());
         for (String argument : ctx.arguments())     
             if (!update(profile, argument))
-                silent.send(argument + "❓", ctx.chatId());
+                silent.send(String.format(UNKNOWNARGUMENT, argument),
+                            ctx.chatId());
         print(profile, chat);
         setProfile(chat, profile);
     };
@@ -151,18 +156,18 @@ public class TeleGrindr extends AbilityBot {
 
     final private Consumer<MessageContext> howisAction = ctx -> {
         final String arg = ctx.firstArg(),
-                     tag = arg.substring(arg.startsWith("@") ? 1 : 0);
+                     tag = arg.substring(arg.charAt(0) == TAGPREFIX ? 1 : 0);
         final Long chat = ctx.chatId();
         Optional<Profile> profile = db
-            .<Integer, Profile>getMap("Profiles_" + chat).values()
-            .stream().filter(
+            .<Integer, Profile>getMap(String.format(PROFILESTABLE, chat))
+            .values().stream().filter(
                 p -> p != null && p.user != null &&
                      tag.equalsIgnoreCase(p.user.getUserName())
             ).findAny();
         if (profile.isPresent())
             print(profile.get(), chat);
         else
-            silent.send("@" + tag + "❓", chat);
+            silent.send(String.format(UNKNOWNARGUMENT, TAGPREFIX + tag), chat);
     };
 
 }
