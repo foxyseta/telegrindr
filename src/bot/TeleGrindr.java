@@ -89,9 +89,9 @@ public class TeleGrindr extends AbilityBot {
         }
     }
 
-    public void print(Stream<Profile> s, Long chatId) {
-        silent.send(String.format(PEOPLECOUNTER, s.count())
-                    + s.map(p -> p.toShortString())
+    public void print(Profile[] profiles, Long chatId) {
+        silent.send(String.format(PEOPLECOUNTER, profiles.length)
+                    + Stream.of(profiles).map(p -> p.toShortString())
                        .collect(Collectors.joining(String.format("%n"),
                                                    String.format("%n"), "")),
                     chatId);
@@ -199,11 +199,13 @@ public class TeleGrindr extends AbilityBot {
     final private Consumer<MessageContext> whoisAction = ctx -> {
         final Long chat = ctx.chatId();
         final Location from = getProfile(chat, ctx.user()).location;
-        if (from != null) {
-            final Stream<Profile> results = db
+        final Filter filter = new Filter(ctx.arguments(), from);
+        if (from != null || !filter.isLocationNeeded())
+            print(db
                 .<Integer, Profile>getMap(String.format(PROFILESTABLE, chat))
-                .values().stream().filter(new Filter(ctx.arguments(), from));
-        } else
+                .values().stream().filter(filter)
+                .toArray(Profile[]::new), chat);
+        else
             silent.send(String.format(UNKNOWNARGUMENT, LOCATIONLABEL), chat);
     };
 }

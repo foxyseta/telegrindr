@@ -86,6 +86,10 @@ public class Filter implements Predicate<Profile> {
         return true;
     }
     
+    public boolean isLocationNeeded() {
+        return distanceFilter != null;
+    }
+
     private EnumMap<Stat, Range<Integer>> statFilters =
         new EnumMap<Stat, Range<Integer>>(Stat.class);
     private Range<Double> distanceFilter;
