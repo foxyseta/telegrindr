@@ -102,7 +102,7 @@ public class TeleGrindr extends AbilityBot {
     final private static String
         REMOVETAGARGUMENTPREFIX = "-",
         TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*",
-        STATARGUMENTREGEX = "(\\d+)(.+)",
+        STATARGUMENTREGEX = "(\\d+)(\\w+)",
         PROFILESTABLE = "Profiles_%d",
         UNKNOWNARGUMENT = "%s❓",
         LOCATIONLABEL = "📍",
@@ -208,4 +208,5 @@ public class TeleGrindr extends AbilityBot {
         else
             silent.send(String.format(UNKNOWNARGUMENT, LOCATIONLABEL), chat);
     };
+
 }

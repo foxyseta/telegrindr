@@ -13,10 +13,14 @@ import org.telegram.telegrambots.meta.api.objects.Location;
 
 public class Filter implements Predicate<Profile> {
     
-    final public static String RANGEARGUMENTREGEX = "(\\d*)(,?)(\\d*)(.+)",
-                               DISTANCEUOM = "km";
+    final public static String RANGEARGUMENTREGEX = "(\\d*)(,?)(\\d*)(\\w+)",
+                               TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*",
+                               DISTANCEUOM = "km",
+                               EXCLUDETAGPREFIX = "-"; 
     final public static Pattern RANGEARGUMENTPATTERN =
-        Pattern.compile(RANGEARGUMENTREGEX);
+        Pattern.compile(RANGEARGUMENTREGEX),
+                                TAGARGUMENTPATTERN =
+        Pattern.compile(TAGARGUMENTREGEX);
     final public static double EARTHRADIUS = 6371005.076123; // m (average)
     public Location from;
 
@@ -24,55 +28,6 @@ public class Filter implements Predicate<Profile> {
         for (String argument : arguments)
             parse(argument);
         this.from = from;
-    }
-
-    public interface Query {
-
-        public boolean validate(SortedSet<String> tags);
-
-    }
-
-    public class AtomicQuery implements Query {
-
-        public AtomicQuery(String tag) {
-            this.tag = tag;
-        }
-
-        public String tag;
-
-        public boolean validate(SortedSet<String> tags) {
-           return tags.contains(this.tag);
-        }
-        
-    }
-    
-    public class ExcludingQuery implements Query {
-
-        public ExcludingQuery(Query query) {
-            this.query = query;
-        }
-        
-        public Query query;
-
-        public boolean validate(SortedSet<String> tags) {
-            return !query.validate(tags);
-        }
-
-    }
-    
-    public class ConjoiningQuery implements Query {
-
-        public ConjoiningQuery(Query queryA, Query queryB) {
-            this.queryA = queryA;
-            this.queryB = queryB;
-        }
-        
-        public Query queryA, queryB;
-
-        public boolean validate(SortedSet<String> tags) {
-            return queryA.validate(tags) && queryB.validate(tags);
-        }
-        
     }
 
     @Override
@@ -87,10 +42,11 @@ public class Filter implements Predicate<Profile> {
             !distanceFilter.contains(distance(from, profile.location)))
             return false;
         // tags query
-        if (queries == null)
-            return true;
-        for (Query query : queries)
-            if (!query.validate(profile.unmodifiableTags())) 
+        final SortedSet<String> tags = profile.unmodifiableTags();
+        if (!tags.containsAll(include))
+            return false;
+        for (String tag : exclude)
+            if (tags.contains(tag))
                 return false;
         return true;
     }
@@ -102,8 +58,9 @@ public class Filter implements Predicate<Profile> {
     private EnumMap<Stat, Range<Integer>> statFilters =
         new EnumMap<Stat, Range<Integer>>(Stat.class);
     private Range<Double> distanceFilter;
-    private HashSet<Query> queries = new HashSet<Query>();
-
+    private HashSet<String> include = new HashSet<String>(),
+                            exclude = new HashSet<String>();
+    
     // Haversine method
     private Double distance(Location l1, Location l2) {
         final double lat1 = l1.getLatitude(),
@@ -136,7 +93,9 @@ public class Filter implements Predicate<Profile> {
                 // uom
                 final String uom = matcher.group(4);
                 if (DISTANCEUOM.equals(uom)) {
-                    distanceFilter = new Range<Double>((double)min, (double)max);
+                    distanceFilter = new Range<Double>(
+                        min == null ? null : (double)min,
+                        max == null ? null : (double)max);
                     return true;
                 }
                 for (Stat stat : Stat.values())
@@ -147,7 +106,14 @@ public class Filter implements Predicate<Profile> {
             }
             return false;
         }
-        // TODO
+        matcher = TAGARGUMENTPATTERN.matcher(arg);
+        if (matcher.matches()) {
+            String tag = matcher.group(2);
+            if (matcher.group(1).equals(EXCLUDETAGPREFIX))
+                exclude.add(tag);
+            else
+                include.add(tag);
+        }
         return false;
     }
 }
