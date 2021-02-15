@@ -1,19 +1,28 @@
 package bot.data;
 
+import static java.lang.Math.*;
+
 import java.util.EnumMap;
 import java.util.function.Predicate;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.SortedSet;
-import static java.lang.Math.*;
+
 import org.telegram.telegrambots.meta.api.objects.Location;
 
 public class Filter implements Predicate<Profile> {
     
-    final public static String RANGEARGUMENTREGEX = "(\\d*),?(\\d*)(.+)";
+    final public static String RANGEARGUMENTREGEX = "(\\d*)(,?)(\\d*)(.+)",
+                               DISTANCEUOM = "km";
+    final public static Pattern RANGEARGUMENTPATTERN =
+        Pattern.compile(RANGEARGUMENTREGEX);
     final public static double EARTHRADIUS = 6371005.076123; // m (average)
     public Location from;
 
     public Filter(String[] arguments, Location from) {
+        for (String argument : arguments)
+            parse(argument);
         this.from = from;
     }
 
@@ -110,4 +119,35 @@ public class Filter implements Predicate<Profile> {
         return EARTHRADIUS * c;
     }
 
+    private Integer parseInt(String s) {
+        return s.isEmpty() ? null : Integer.parseInt(s);
+    }
+
+    private boolean parse(String arg) {
+        Matcher matcher = RANGEARGUMENTPATTERN.matcher(arg);
+        if (matcher.matches()) {
+            // min, max
+            final Integer min = parseInt(matcher.group(1)), max;
+            if (matcher.group(2).isEmpty()) // no delimitator
+                max = min; 
+            else
+                max = parseInt(matcher.group(3));
+            if (min == null || max == null || min <= max) {
+                // uom
+                final String uom = matcher.group(4);
+                if (DISTANCEUOM.equals(uom)) {
+                    distanceFilter = new Range<Double>((double)min, (double)max);
+                    return true;
+                }
+                for (Stat stat : Stat.values())
+                    if (stat.uom().equals(uom)) {
+                        statFilters.put(stat, new Range<Integer>(min, max));
+                        return true;
+                    }
+            }
+            return false;
+        }
+        // TODO
+        return false;
+    }
 }

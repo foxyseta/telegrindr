@@ -31,13 +31,14 @@ public class Range<T extends Comparable<? super T>> {
     }
 
     public boolean contains(T x) {
-        return min.compareTo(x) <= 0 && x.compareTo(max) <= 0;
+        return (min == null || min.compareTo(x) <= 0) &&
+               (max == null || x.compareTo(max) <= 0);
     }
 
     private T min, max;
     
     private void validateRange() {
-        if (min.compareTo(max) > 0)
+        if (min != null && max != null && min.compareTo(max) > 0)
             throw new IllegalArgumentException(
                 "Range.validateRange: min (" + min + ") > max (" + max + ")"
             );
