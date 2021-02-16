@@ -71,7 +71,7 @@ public class Profile implements java.io.Serializable {
 
     public String toString() {
         String res = String.format(
-            "%s **%s%s** @%s %s%n💬 %s%n",
+            "%s *%s%s* @%s %s%n💬 %s%n",
             emoji, user.getFirstName(),
             user.getLastName() == null ? "" : " " + user.getLastName(),
             user.getUserName(), emoji, user.getLanguageCode());

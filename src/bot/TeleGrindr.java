@@ -33,6 +33,31 @@ public class TeleGrindr extends AbilityBot {
         return cId;
     }
 
+    public Ability start() {
+        return Ability
+                .builder()
+                .name("start")
+                .info("short introduction")
+                .input(0)
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .action(startAction)
+                .enableStats()
+                .build();
+    }
+    public Ability help() {
+        return Ability
+                .builder()
+                .name("help")
+                .info("prints a short guide")
+                .input(0)
+                .locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC)
+                .action(helpAction)
+                .enableStats()
+                .build();
+    }
+
     public Ability iam() {
         return Ability
                 .builder()
@@ -159,6 +184,44 @@ public class TeleGrindr extends AbilityBot {
         }
         return true;
     }
+
+    final private Consumer<MessageContext> startAction = ctx-> {
+        silent.sendMd(String.format(
+            "*Hi!* 👋%nThe name's _TeleGrindr_ and I can help you get in contact " +
+            "with other users in the same Telegram groups as you. If you do " +
+            "not know where to start, just ask me for /help."
+        ), ctx.chatId());
+    };
+    
+    final private Consumer<MessageContext> helpAction = ctx -> {
+        final Long chat = ctx.chatId();
+        silent.sendMd(String.format(
+            "::= = is%n" +
+            "| = or%n" +
+            "\\[ ] = once or none%n" +
+            "{ } = zero or more times"), chat);
+        silent.sendMd(String.format(
+            "*👤 SETTING UP YOUR PROFILE%n" +
+            "/iam {argument}*%n%n" + 
+            "_argument_ ::= _stat_|_property_%n" +
+            "_stat_ ::= _integer_(yo|cm|kg)%n" +
+            "_property_ ::= \\[+|-]#_hashtag_%n%n" +
+            "ex. `/iam 29yo -#jock #nerd 175cm` sets your age and height. " +
+            "It also replaces one of your tags with another.%n" +
+            "📍 You can also send me your location."), chat);
+        silent.sendMd(String.format(
+            "*🔍 SHOWING SOMEONE'S PROFILE%n" +
+            "/howis @%s*", getBotUsername()), chat);
+        silent.sendMd(String.format(
+            "*👥 LISTING PROFILES%n" +
+            "/whois {filter}*%n%n" +
+            "_filter_ ::= _range_|_property_%n" +
+            "_range_ ::= \\[_integer_]\\[,]\\[_integer_](yo|cm|kg|km)%n" +
+            "_property_ ::= \\[+|-]#_hashtag_%n%n" +
+            "ex. `/whois 18,29yo #single ,10km -#sporty` selects profiles " +
+            "within the specified ranges and (not) having the specified tags."
+        ), chat);
+    };
 
     final private Consumer<MessageContext> iamAction = ctx -> {
         final Long chat = ctx.chatId();
