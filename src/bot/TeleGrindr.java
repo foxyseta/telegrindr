@@ -21,18 +21,54 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+/**
+ * A <code>TeleGrindr</code> object stores its creator ID. It also defines many
+ * abilities.
+ *
+ * @see Ability
+ * @author FoxySeta
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 public class TeleGrindr extends AbilityBot {
 
+    /**
+     * Creates a new instance of <code>Telegrind</code>.
+     * 
+     * @param botToken Bot token sent by FatherBot.
+     * @param username Username communicated to FatherBot.
+     * @param creatorId Your telegram account identifier.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0 
+     */
     public TeleGrindr(String botToken, String username, int creatorId) {
         super(botToken, username);
         cId = creatorId;
     }
 
+    /**
+     * Gets the bot's creator identifier.
+     * 
+     * @see #cId
+     * @return The bot creator's unique identifier.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     @Override
     public int creatorId() {
         return cId;
     }
 
+    /**
+     * Gets the ability triggered by <code>/start</code>.
+     * 
+     * @return The ability triggered by <code>/start</code>
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     public Ability start() {
         return Ability
                 .builder()
@@ -45,6 +81,15 @@ public class TeleGrindr extends AbilityBot {
                 .enableStats()
                 .build();
     }
+    
+    /**
+     * Gets the ability triggered by <code>/help</code>.
+     * 
+     * @return The ability triggered by <code>/help</code>.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     public Ability help() {
         return Ability
                 .builder()
@@ -58,6 +103,14 @@ public class TeleGrindr extends AbilityBot {
                 .build();
     }
 
+    /**
+     * Gets the ability triggered by <code>/iam</code>.
+     * 
+     * @return The ability triggered by <code>/iam</code>.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     public Ability iam() {
         return Ability
                 .builder()
@@ -72,6 +125,14 @@ public class TeleGrindr extends AbilityBot {
                 .build();
     }
     
+    /**
+     * Gets the ability triggered by <code>/howis</code>
+     * 
+     * @return The ability triggered by <code>/howis</code>.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     public Ability howis() {
         return Ability
                 .builder()
@@ -85,6 +146,14 @@ public class TeleGrindr extends AbilityBot {
                 .build();
     }
 
+    /**
+     * Gets the ability triggered by <code>/whois</code>
+     * 
+     * @return The ability triggered by <code>/whois</code>.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     public Ability whois() {
         return Ability
                 .builder()
@@ -98,6 +167,15 @@ public class TeleGrindr extends AbilityBot {
                 .build();
     }
 
+    /**
+     * Sends a message containing a single {@link Profile}.
+     * 
+     * @param p The {@link Profile} to print.
+     * @param chatId The identifier of the chat to use.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     public void print(Profile p, Long chatId) {
         silent.sendMd(p.toString(), chatId);
         if (p.location != null) {
@@ -114,6 +192,16 @@ public class TeleGrindr extends AbilityBot {
         }
     }
 
+    /**
+     * Sends a message listing a sequence where each element is a {@link
+     * Profile}.
+     *
+     * @param profiles The profiles to be listes.
+     * @param chatId The identifier of the chat to use.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     public void print(Profile[] profiles, Long chatId) {
         silent.send(String.format(PEOPLECOUNTER, profiles.length)
                     + Stream.of(profiles).map(p -> p.toShortString())
@@ -122,20 +210,44 @@ public class TeleGrindr extends AbilityBot {
                     chatId);
     }
 
+    /** The creator's unique identifier. */
     private int cId;
+    /** The prefix used when tagging a certain user. */
     final private static char TAGPREFIX = '@';
-    final private static String
-        REMOVETAGARGUMENTPREFIX = "-",
-        TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*",
-        STATARGUMENTREGEX = "(\\d+)(\\w+)",
-        PROFILESTABLE = "Profiles_%d",
-        UNKNOWNARGUMENT = "%s❓",
-        LOCATIONLABEL = "📍",
-        PEOPLECOUNTER = "👤 × %d";
-    final private static Pattern
-        TAGARGUMENTPATTERN = Pattern.compile(TAGARGUMENTREGEX),
-        STATARGUMENTPATTERN = Pattern.compile(STATARGUMENTREGEX);
+    /** The prefix used when removing a tag from your own {@link Profile}. */
+    final private static String REMOVETAGARGUMENTPREFIX = "-";
+    /** The regex for any tag action to be applied to a {@link Profile}. */
+    final private static String TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*";
+    /** The regex representing a {@link Stat} and its value. */
+    final private static String STATARGUMENTREGEX = "(\\d+)(\\w+)";
+    /** The name format for {@link Profile} tables. */
+    final private static String PROFILESTABLE = "Profiles_%d";
+    /** The message format to be used on unrecognized arguments. */
+    final private static String UNKNOWNARGUMENT = "%s❓";
+    /** The label representing the concept of a {@link Location}. */
+    final private static String LOCATIONLABEL = "📍";
+    /** The format of any counter used for {@link Profile} instances. */
+    final private static String PEOPLECOUNTER = "👤 × %d";
+    /**
+     * The {@link Pattern} generated from the {@linkplain #TAGARGUMENTREGEX tag
+     * actions' regex}.
+     */
+    final private static Pattern TAGARGUMENTPATTERN =
+        Pattern.compile(TAGARGUMENTREGEX);
+    /**
+     * The {@link Pattern} generated from the {@linkplain #STATARGUMENTREGEX
+     * stat-value pairs' regex}.
+     */
+    final private static Pattern STATARGUMENTPATTERN =
+        Pattern.compile(STATARGUMENTREGEX);
         
+    /**
+     * Retrieves a {@link Profile} from the database.
+     * 
+     * @param chatId The chat where the {@link Profile} was set up.
+     * @param user The {@link User} who set up the {@link Profile}.
+     * @return The {@Profile} in question.
+     */
     private Profile getProfile(Long chatId, User user) {
         final Map<Integer, Profile> profiles =
             db.getMap(String.format(PROFILESTABLE, chatId));
@@ -150,11 +262,31 @@ public class TeleGrindr extends AbilityBot {
         return newProfile;
     }
 
+    /**
+     * Updates (or adds if absent) a {@link Profile} in the database.
+     * 
+     * @param chatId The chat where the {@link Profile} was set up.
+     * @param profile The up-to-date {@link Profile}.
+     * @return The out-of-date {@link Profile} or <code>null</code>.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     private Profile setProfile(Long chatId, Profile profile) {
         return db.<Integer, Profile>getMap(String.format(PROFILESTABLE, chatId))
                  .put(profile.user.getId(), profile);
     }
 
+    /**
+     * Applies a certain action to a {@link Profile}.
+     * 
+     * @param profile The {@Profile} to be edited.
+     * @param argument A {@String} representing the action to apply.
+     * @return <code>true</code> on success, <code>false</code> on failure.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     private boolean update(Profile profile, String argument) {
         Matcher matcher = TAGARGUMENTPATTERN.matcher(argument);
         if (matcher.matches()) {
@@ -185,6 +317,7 @@ public class TeleGrindr extends AbilityBot {
         return true;
     }
 
+    /** The action related to the <code>/start</code> command. */
     final private Consumer<MessageContext> startAction = ctx-> {
         silent.sendMd(String.format(
             "*Hi!* 👋%nThe name's _TeleGrindr_ and I can help you get in contact " +
@@ -193,6 +326,7 @@ public class TeleGrindr extends AbilityBot {
         ), ctx.chatId());
     };
     
+    /** The action related to the <code>/help</code> command. */
     final private Consumer<MessageContext> helpAction = ctx -> {
         final Long chat = ctx.chatId();
         silent.sendMd(String.format(
@@ -223,6 +357,7 @@ public class TeleGrindr extends AbilityBot {
         ), chat);
     };
 
+    /** The action related to the <code>/iam</code> command. */
     final private Consumer<MessageContext> iamAction = ctx -> {
         final Long chat = ctx.chatId();
         final Profile profile = getProfile(ctx.chatId(), ctx.user());
@@ -234,6 +369,7 @@ public class TeleGrindr extends AbilityBot {
         setProfile(chat, profile);
     };
     
+    /** The reply related to the <code>/iam</code> command. */
     final private Consumer<Update> iamReply = upd -> {
         final Message message = upd.getMessage();
         final Profile profile = getProfile(upd.getMessage().getChatId(),
@@ -243,6 +379,7 @@ public class TeleGrindr extends AbilityBot {
         print(profile, upd.getMessage().getChatId());
     };
 
+    /** The action related to the <code>/howis</code> command. */
     final private Consumer<MessageContext> howisAction = ctx -> {
         final String arg = ctx.firstArg(),
                      tag = arg.substring(arg.charAt(0) == TAGPREFIX ? 1 : 0);
@@ -259,6 +396,7 @@ public class TeleGrindr extends AbilityBot {
             silent.send(String.format(UNKNOWNARGUMENT, TAGPREFIX + tag), chat);
     };
 
+    /** The action related to the <code>/whois</code> command. */
     final private Consumer<MessageContext> whoisAction = ctx -> {
         final Long chat = ctx.chatId();
         final Location from = getProfile(chat, ctx.user()).location;

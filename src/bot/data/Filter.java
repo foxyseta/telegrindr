@@ -11,25 +11,72 @@ import java.util.SortedSet;
 
 import org.telegram.telegrambots.meta.api.objects.Location;
 
+/**
+ * A <code>Filter</code> can {@link #test} whether a {@link Profile}
+ * can be of any interest to the user.
+ *
+ * @author FoxySeta
+ * @version 1.0.0
+ * @since 1.0.0
+ */ 
 public class Filter implements Predicate<Profile> {
     
-    final public static String RANGEARGUMENTREGEX = "(\\d*)(,?)(\\d*)(\\w+)",
-                               TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*",
-                               DISTANCEUOM = "km",
-                               EXCLUDETAGPREFIX = "-"; 
+    /** The regex representing a {@link Stat} and its {@link Range}. */
+    final public static String RANGEARGUMENTREGEX = "(\\d*)(,?)(\\d*)(\\w+)"; 
+    /** The regex for any tag-related preference. */
+    final public static String TAGARGUMENTREGEX = "([+-]?)#([0-9A-Za-z]+).*";
+    /**
+     * The unit of measurement for distances between one {@link Location} and
+     * another.
+     */
+    final public static String DISTANCEUOM = "km";
+    /** The prefix used for excluding a certain tag. */
+    final public static String EXCLUDETAGPREFIX = "-"; 
+    /**
+     * The {@link Pattern} generated from the {@linkplain #RANGEARGUMENTREGEX
+     * stat-range pairs' regex}.
+     */
     final public static Pattern RANGEARGUMENTPATTERN =
-        Pattern.compile(RANGEARGUMENTREGEX),
-                                TAGARGUMENTPATTERN =
+        Pattern.compile(RANGEARGUMENTREGEX); 
+    /**
+     * The {@link Pattern} generated from the {@linkplain #TAGARGUMENTREGEX
+     * tag-related preferences' regex}.
+     */
+    final public static Pattern TAGARGUMENTPATTERN =
         Pattern.compile(TAGARGUMENTREGEX);
-    final public static double EARTHRADIUS = 6371005.076123; // m (average)
+    /** The average earth radius in kilometers. */
+    final public static double EARTHRADIUS = 6371.005076123;
+    /**
+     * The {@link Location} from which all {@linkplain #distance distances}
+     * are calculated.
+     */
     public Location from;
 
+    /**
+     * Instantiates a new {@link Filter}.
+     * 
+     * @param arguments The users' preferences.
+     * @param from See {@link #from}. 
+     * @author FoxySeta
+     * @version 1.0.0
+     * @since 1.0.0
+     */
     public Filter(String[] arguments, Location from) {
         for (String argument : arguments)
             parse(argument);
         this.from = from;
     }
 
+    /**
+     * Checks a given {@link Profile}.
+     * 
+     * @param profile The {@link Profile} to be tested.
+     * @return Whether the {@link Profile} passes the test (<code>true</code>)
+     * or gets filtered out (<code>false</code>).
+     * @author FoxySeta
+     * @version 1.0.0
+     * @since 1.0.0
+     */
     @Override
     public boolean test(Profile profile) {
         // stat filters
@@ -51,17 +98,51 @@ public class Filter implements Predicate<Profile> {
         return true;
     }
     
+    /**
+     * Checks whether a non-<code>null</code> location is needed for
+     * executing {@linkplain #test tests}.
+     * 
+     * @see #from
+     * @return <code>true</code> if the loction is needed, <code>false</code>
+     * otherwise.
+     * @author FoxySeta
+     * @version 1.0.0
+     * @since 1.0.0
+     */
     public boolean isLocationNeeded() {
         return distanceFilter != null;
     }
 
+    /**
+     * Contains the {@linkplain #RANGEARGUMENTPATTERN stat-related
+     * preferences}.
+     */
     private EnumMap<Stat, Range<Integer>> statFilters =
         new EnumMap<Stat, Range<Integer>>(Stat.class);
+    /**
+     * Contains the {@linkplain #RANGEARGUMENTPATTERN distance-related
+     * filters.
+     */
     private Range<Double> distanceFilter;
-    private HashSet<String> include = new HashSet<String>(),
-                            exclude = new HashSet<String>();
+    /** A whitelist for tags. */
+    private HashSet<String> include = new HashSet<String>();
+    /** A blacklist for tags. */
+    private HashSet<String> exclude = new HashSet<String>();
     
-    // Haversine method
+    /**
+     * Calculates the distance between two instances of {@link Location} using
+     * the {@linkplain <a
+     * href="https://rosettacode.org/wiki/Haversine_formula"> haversine
+     * formula</a>}.
+     *
+     * @param l1 The first {@link Location}.
+     * @param l2 The second {@link Location}.
+     * @return The distance between <code>l1</code> and <code>l2</code> in
+     * kilometers.
+     * @author FoxySeta
+     * @version 1.0.0
+     * @since 1.0.0
+     */
     private Double distance(Location l1, Location l2) {
         final double lat1 = l1.getLatitude(),
                      lon1 = l1.getLongitude(),
@@ -76,10 +157,29 @@ public class Filter implements Predicate<Profile> {
         return EARTHRADIUS * c;
     }
 
+    /**
+     * A new parser based on {@link java.lang.Integer#parseInt} which can also
+     * handle empty strings.
+     * @param s The string to be parsed.
+     * @return The parsing result, or <code>null</code> if <code>s</code> is
+     * empty.
+     * @author FoxySeta
+     * @version 1.0.0
+     * @since 1.0.0
+     */
     private Integer parseInt(String s) {
         return s.isEmpty() ? null : Integer.parseInt(s);
     }
 
+    /**
+     * Parses a single string representation of one of the user's preferences.
+     * 
+     * @param arg The string to be parsed.
+     * @return <code>true</code> on success, <code>false</code> on failure.
+     * @author FoxySeta
+     * @version 1.0.0
+     * @since 1.0.0
+     */
     private boolean parse(String arg) {
         Matcher matcher = RANGEARGUMENTPATTERN.matcher(arg);
         if (matcher.matches()) {
@@ -116,4 +216,5 @@ public class Filter implements Predicate<Profile> {
         }
         return false;
     }
+
 }

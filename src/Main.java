@@ -2,9 +2,26 @@ import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+/**
+ * This class features the application's entry point.
+ * 
+ * @see #main
+ * @author FoxySeta
+ * @version 1.0
+ * @since 1.0
+ */
 public class Main {
     
-    // args = [botToken, botUsername, creatorId]
+    /**
+     * The application's entry point. It instantiates a single <code>TeleGrindr
+     * </code>.
+     * 
+     * @see bot.TeleGrindr
+     * @param args Contains the bot's token, username and creator's ID.
+     * @author FoxySeta
+     * @version 1.0
+     * @since 1.0
+     */
     public static void main(String[] args) {
         try {
             TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
