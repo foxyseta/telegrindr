@@ -53,11 +53,11 @@ After asking BotFather to create a `/newbot`, you should:
 * [SLF4J NOP Binding](https://mvnrepository.com/artifact/org.slf4j/slf4j-nop)
 
 ### Usage
-After building the project using [`Main`](./src/Main.java#L13) as you main
+After building the project using [`Main`](./src/Main.java#L13) as your main
 class, you can launch it. Your environment needs to provide three arguments:
 1. the bot's token
 1. the bot's username
-1. the bot's creator's identifier
+1. the bot's creator's identifier<br />
 For example, you got a single executable JAR file named `telegrindr.jar` in
 your current directory, you can run it from Bash like this:
 ```bash
