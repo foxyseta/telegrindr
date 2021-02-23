@@ -71,4 +71,7 @@ class, you should have a single executable JAR file named `telegrindr.jar` in
 the parent directory. You can build your image like this:
 ```bash
 $ docker build docker
+    -e BOT_TOKEN=$BOT_TOKEN
+    -e BOT_USERNAME=$BOT_USERNAME
+    -e BOT_CREATOR_ID=$BOT_CREATOR_ID
 ```
