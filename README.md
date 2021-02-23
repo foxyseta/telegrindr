@@ -53,6 +53,8 @@ After asking BotFather to create a `/newbot`, you should:
 * [SLF4J NOP Binding](https://mvnrepository.com/artifact/org.slf4j/slf4j-nop)
 
 ### Usage
+
+#### Without Docker
 After building the project using [`Main`](./src/Main.java#L13) as your main
 class, you can launch it. Your environment needs to provide three arguments:
 1. the bot's token
@@ -62,4 +64,11 @@ For example, you got a single executable JAR file named `telegrindr.jar` in
 your current directory, you can run it from Bash like this:
 ```bash
 $ java -jar telegrindr.jar 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11 telegrindrBot 1234567890
+```
+#### With Docker
+After building the project using [`Main`](./src/Main.java#L13) as your main
+class, you should have a single executable JAR file named `telegrindr.jar` in
+the parent directory. You can build your image like this:
+```bash
+$ docker build docker
 ```
