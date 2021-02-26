@@ -25,11 +25,11 @@ The bot also inherits the [standard commands](https://github.com/rubenlagus/Tele
 ### Talking to BotFather
 After asking BotFather to create a `/newbot`, you should:
 1. `/setname` (you may use "TeleGrindr")
-1. `/setdescription` (you may use "The crossover nobody was waiting for.")
-1. `/setabouttext` (you may use [this](#Introduction))
+1. `/setdescription` (you may use [this](#Introduction))
+1. `/setabouttext` (you may use "The crossover nobody was waiting for.")
 1. `/setuserpic` (you may use [this](./logo/logo.png))
 1. `/setcommands`
-> start - short intruduction<br />
+> start - short introduction<br />
 > help - prints a short guide<br />
 > iam - edits your profile<br />
 > howis - displays a profile<br />
