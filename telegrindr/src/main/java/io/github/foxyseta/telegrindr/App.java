@@ -32,7 +32,7 @@ public class App {
                             Integer.parseInt(args[2])));
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("Main: needs a bot token, a bot username,"
-                               + " and a creator ID (both passed as arguments)");
+                               + " and a creator ID (all passed as arguments)");
         } catch (NumberFormatException e) {
             System.out.println("Main: the creator ID should be an integer");
         } catch (TelegramApiException e) {
