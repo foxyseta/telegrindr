@@ -72,7 +72,7 @@ $ docker build . -t telegrindr
 ```
 Then, you can run it: 
 ```bash
-docker run --rm -it \
+docker run --rm -v ./path/to/local/dir:. -it \
 -eTOKEN_ID=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11 \
 -eUSERNAME=telegrindrBot \
 -eCREATOR_ID=1234567890 \

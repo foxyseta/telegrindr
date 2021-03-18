@@ -3,6 +3,7 @@ package io.github.foxyseta.telegrindr.bot;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -21,7 +22,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-
 import io.github.foxyseta.telegrindr.bot.data.Filter;
 import io.github.foxyseta.telegrindr.bot.data.Profile;
 import io.github.foxyseta.telegrindr.bot.data.Stat;
@@ -38,18 +38,19 @@ import io.github.foxyseta.telegrindr.bot.data.Stat;
 public class TeleGrindr extends AbilityBot {
 
     /**
-     * Creates a new instance of <code>Telegrind</code>.
+     * Creates a new instance of <code>Telegrindr</code>.
      * 
-     * @param botToken Bot token sent by FatherBot.
-     * @param username Username communicated to FatherBot.
+     * @param botToken  Bot token sent by FatherBot.
+     * @param username  Username communicated to FatherBot.
      * @param creatorId Your telegram account identifier.
      * @author FoxySeta
      * @version 1.0
-     * @since 1.0 
+     * @since 1.0
      */
     public TeleGrindr(String botToken, String username, int creatorId) {
         super(botToken, username);
         cId = creatorId;
+        logger.info("Bot " + username + " initialized.");
     }
 
     /**
@@ -75,18 +76,10 @@ public class TeleGrindr extends AbilityBot {
      * @since 1.0
      */
     public Ability start() {
-        return Ability
-                .builder()
-                .name("start")
-                .info("short introduction")
-                .input(0)
-                .locality(Locality.ALL)
-                .privacy(Privacy.PUBLIC)
-                .action(startAction)
-                .enableStats()
-                .build();
+        return Ability.builder().name("start").info("short introduction").input(0).locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC).action(startAction).enableStats().build();
     }
-    
+
     /**
      * Gets the ability triggered by <code>/help</code>.
      * 
@@ -96,16 +89,8 @@ public class TeleGrindr extends AbilityBot {
      * @since 1.0
      */
     public Ability help() {
-        return Ability
-                .builder()
-                .name("help")
-                .info("prints a short guide")
-                .input(0)
-                .locality(Locality.ALL)
-                .privacy(Privacy.PUBLIC)
-                .action(helpAction)
-                .enableStats()
-                .build();
+        return Ability.builder().name("help").info("prints a short guide").input(0).locality(Locality.ALL)
+                .privacy(Privacy.PUBLIC).action(helpAction).enableStats().build();
     }
 
     /**
@@ -117,19 +102,10 @@ public class TeleGrindr extends AbilityBot {
      * @since 1.0
      */
     public Ability iam() {
-        return Ability
-                .builder()
-                .name("iam")
-                .info("edits your profile")
-                .input(0)
-                .locality(Locality.GROUP)
-                .privacy(Privacy.PUBLIC)
-                .action(iamAction)
-                .reply(iamReply, Flag.LOCATION)
-                .enableStats()
-                .build();
+        return Ability.builder().name("iam").info("edits your profile").input(0).locality(Locality.GROUP)
+                .privacy(Privacy.PUBLIC).action(iamAction).reply(iamReply, Flag.LOCATION).enableStats().build();
     }
-    
+
     /**
      * Gets the ability triggered by <code>/howis</code>
      * 
@@ -139,16 +115,8 @@ public class TeleGrindr extends AbilityBot {
      * @since 1.0
      */
     public Ability howis() {
-        return Ability
-                .builder()
-                .name("howis")
-                .info("displays a profile")
-                .input(1)
-                .locality(Locality.GROUP)
-                .privacy(Privacy.PUBLIC)
-                .action(howisAction)
-                .enableStats()
-                .build();
+        return Ability.builder().name("howis").info("displays a profile").input(1).locality(Locality.GROUP)
+                .privacy(Privacy.PUBLIC).action(howisAction).enableStats().build();
     }
 
     /**
@@ -160,22 +128,14 @@ public class TeleGrindr extends AbilityBot {
      * @since 1.0
      */
     public Ability whois() {
-        return Ability
-                .builder()
-                .name("whois")
-                .info("searches for profiles")
-                .input(0)
-                .locality(Locality.GROUP)
-                .privacy(Privacy.PUBLIC)
-                .action(whoisAction)
-                .enableStats()
-                .build();
+        return Ability.builder().name("whois").info("searches for profiles").input(0).locality(Locality.GROUP)
+                .privacy(Privacy.PUBLIC).action(whoisAction).enableStats().build();
     }
 
     /**
      * Sends a message containing a single {@link Profile}.
      * 
-     * @param p The {@link Profile} to print.
+     * @param p      The {@link Profile} to print.
      * @param chatId The identifier of the chat to use.
      * @author FoxySeta
      * @version 1.0
@@ -198,21 +158,17 @@ public class TeleGrindr extends AbilityBot {
     }
 
     /**
-     * Sends a message listing a sequence where each element is a {@link
-     * Profile}.
+     * Sends a message listing a sequence where each element is a {@link Profile}.
      *
      * @param profiles The profiles to be listes.
-     * @param chatId The identifier of the chat to use.
+     * @param chatId   The identifier of the chat to use.
      * @author FoxySeta
      * @version 1.0
      * @since 1.0
      */
     public void print(Profile[] profiles, Long chatId) {
-        silent.send(String.format(PEOPLECOUNTER, profiles.length)
-                    + Stream.of(profiles).map(p -> p.toShortString())
-                       .collect(Collectors.joining(String.format("%n"),
-                                                   String.format("%n"), "")),
-                    chatId);
+        silent.send(String.format(PEOPLECOUNTER, profiles.length) + Stream.of(profiles).map(p -> p.toShortString())
+                .collect(Collectors.joining(String.format("%n"), String.format("%n"), "")), chatId);
     }
 
     /** The creator's unique identifier. */
@@ -237,25 +193,25 @@ public class TeleGrindr extends AbilityBot {
      * The {@link Pattern} generated from the {@linkplain #TAGARGUMENTREGEX tag
      * actions' regex}.
      */
-    final private static Pattern TAGARGUMENTPATTERN =
-        Pattern.compile(TAGARGUMENTREGEX);
+    final private static Pattern TAGARGUMENTPATTERN = Pattern.compile(TAGARGUMENTREGEX);
     /**
      * The {@link Pattern} generated from the {@linkplain #STATARGUMENTREGEX
      * stat-value pairs' regex}.
      */
-    final private static Pattern STATARGUMENTPATTERN =
-        Pattern.compile(STATARGUMENTREGEX);
-        
+    final private static Pattern STATARGUMENTPATTERN = Pattern.compile(STATARGUMENTREGEX);
+
+    /** Logs notices regarding the bot's execution. */
+    final private static Logger logger = Logger.getLogger(TeleGrindr.class.getName());
+
     /**
      * Retrieves a {@link Profile} from the database.
      * 
      * @param chatId The chat where the {@link Profile} was set up.
-     * @param user The {@link User} who set up the {@link Profile}.
+     * @param user   The {@link User} who set up the {@link Profile}.
      * @return The {@Profile} in question.
      */
     private Profile getProfile(Long chatId, User user) {
-        final Map<Integer, Profile> profiles =
-            db.getMap(String.format(PROFILESTABLE, chatId));
+        final Map<Integer, Profile> profiles = db.getMap(String.format(PROFILESTABLE, chatId));
         final Integer userId = user.getId();
         if (profiles.containsKey(userId)) {
             final Profile oldProfile = profiles.get(userId);
@@ -270,7 +226,7 @@ public class TeleGrindr extends AbilityBot {
     /**
      * Updates (or adds if absent) a {@link Profile} in the database.
      * 
-     * @param chatId The chat where the {@link Profile} was set up.
+     * @param chatId  The chat where the {@link Profile} was set up.
      * @param profile The up-to-date {@link Profile}.
      * @return The out-of-date {@link Profile} or <code>null</code>.
      * @author FoxySeta
@@ -278,14 +234,13 @@ public class TeleGrindr extends AbilityBot {
      * @since 1.0
      */
     private Profile setProfile(Long chatId, Profile profile) {
-        return db.<Integer, Profile>getMap(String.format(PROFILESTABLE, chatId))
-                 .put(profile.user.getId(), profile);
+        return db.<Integer, Profile>getMap(String.format(PROFILESTABLE, chatId)).put(profile.user.getId(), profile);
     }
 
     /**
      * Applies a certain action to a {@link Profile}.
      * 
-     * @param profile The {@Profile} to be edited.
+     * @param profile  The {@Profile} to be edited.
      * @param argument A {@String} representing the action to apply.
      * @return <code>true</code> on success, <code>false</code> on failure.
      * @author FoxySeta
@@ -323,82 +278,68 @@ public class TeleGrindr extends AbilityBot {
     }
 
     /** The action related to the <code>/start</code> command. */
-    final private Consumer<MessageContext> startAction = ctx-> {
-        silent.sendMd(String.format(
-            "*Hi!* 👋%nThe name's _TeleGrindr_ and I can help you get in contact " +
-            "with other users in the same Telegram groups as you. If you do " +
-            "not know where to start, just ask me for /help."
-        ), ctx.chatId());
+    final private Consumer<MessageContext> startAction = ctx -> {
+        silent.sendMd(String.format("*Hi!* 👋%nThe name's _TeleGrindr_ and I can help you get in contact "
+                + "with other users in the same Telegram groups as you. If you do "
+                + "not know where to start, just ask me for /help."), ctx.chatId());
+        logger.info("sent 'start' message.");
     };
-    
+
     /** The action related to the <code>/help</code> command. */
     final private Consumer<MessageContext> helpAction = ctx -> {
         final Long chat = ctx.chatId();
-        silent.sendMd(String.format(
-            "::= = is%n" +
-            "| = or%n" +
-            "\\[ ] = once or none%n" +
-            "{ } = zero or more times"), chat);
-        silent.sendMd(String.format(
-            "*👤 SETTING UP YOUR PROFILE%n" +
-            "/iam {argument}*%n%n" + 
-            "_argument_ ::= _stat_|_property_%n" +
-            "_stat_ ::= _integer_(yo|cm|kg)%n" +
-            "_property_ ::= \\[+|-]#_hashtag_%n%n" +
-            "ex. `/iam 29yo -#jock #nerd 175cm` sets your age and height. " +
-            "It also replaces one of your tags with another.%n" +
-            "📍 You can also send me your location."), chat);
-        silent.sendMd(String.format(
-            "*🔍 SHOWING SOMEONE'S PROFILE%n" +
-            "/howis @%s*", getBotUsername()), chat);
-        silent.sendMd(String.format(
-            "*👥 LISTING PROFILES%n" +
-            "/whois {filter}*%n%n" +
-            "_filter_ ::= _range_|_property_%n" +
-            "_range_ ::= \\[_integer_]\\[,]\\[_integer_](yo|cm|kg|km)%n" +
-            "_property_ ::= \\[+|-]#_hashtag_%n%n" +
-            "ex. `/whois 18,29yo #single ,10km -#sporty` selects profiles " +
-            "within the specified ranges and (not) having the specified tags."
-        ), chat);
+        silent.sendMd(String.format("::= = is%n" + "| = or%n" + "\\[ ] = once or none%n" + "{ } = zero or more times"),
+                chat);
+        silent.sendMd(String.format("*👤 SETTING UP YOUR PROFILE%n" + "/iam {argument}*%n%n"
+                + "_argument_ ::= _stat_|_property_%n" + "_stat_ ::= _integer_(yo|cm|kg)%n"
+                + "_property_ ::= \\[+|-]#_hashtag_%n%n"
+                + "ex. `/iam 29yo -#jock #nerd 175cm` sets your age and height. "
+                + "It also replaces one of your tags with another.%n" + "📍 You can also send me your location."),
+                chat);
+        silent.sendMd(String.format("*🔍 SHOWING SOMEONE'S PROFILE%n" + "/howis @%s*", getBotUsername()), chat);
+        silent.sendMd(String.format("*👥 LISTING PROFILES%n" + "/whois {filter}*%n%n"
+                + "_filter_ ::= _range_|_property_%n" + "_range_ ::= \\[_integer_]\\[,]\\[_integer_](yo|cm|kg|km)%n"
+                + "_property_ ::= \\[+|-]#_hashtag_%n%n"
+                + "ex. `/whois 18,29yo #single ,10km -#sporty` selects profiles "
+                + "within the specified ranges and (not) having the specified tags."), chat);
+        logger.info("sent 'help' message.");
     };
 
     /** The action related to the <code>/iam</code> command. */
     final private Consumer<MessageContext> iamAction = ctx -> {
         final Long chat = ctx.chatId();
         final Profile profile = getProfile(ctx.chatId(), ctx.user());
-        for (String argument : ctx.arguments())     
+        for (String argument : ctx.arguments())
             if (!update(profile, argument))
-                silent.send(String.format(UNKNOWNARGUMENT, argument),
-                            ctx.chatId());
+                silent.send(String.format(UNKNOWNARGUMENT, argument), ctx.chatId());
         print(profile, chat);
         setProfile(chat, profile);
+        logger.info(profile.toShortString() + " updated.");
     };
-    
+
     /** The reply related to the <code>/iam</code> command. */
     final private Consumer<Update> iamReply = upd -> {
         final Message message = upd.getMessage();
-        final Profile profile = getProfile(upd.getMessage().getChatId(),
-                                           upd.getMessage().getFrom());
+        final Profile profile = getProfile(upd.getMessage().getChatId(), upd.getMessage().getFrom());
         profile.location = message.getLocation();
         setProfile(message.getChatId(), profile);
         print(profile, upd.getMessage().getChatId());
+        logger.info(profile.toShortString() + "'s position updated.");
     };
 
     /** The action related to the <code>/howis</code> command. */
     final private Consumer<MessageContext> howisAction = ctx -> {
-        final String arg = ctx.firstArg(),
-                     tag = arg.substring(arg.charAt(0) == TAGPREFIX ? 1 : 0);
+        final String arg = ctx.firstArg(), tag = arg.substring(arg.charAt(0) == TAGPREFIX ? 1 : 0);
         final Long chat = ctx.chatId();
-        Optional<Profile> profile = db
-            .<Integer, Profile>getMap(String.format(PROFILESTABLE, chat))
-            .values().stream().filter(
-                p -> p != null && p.user != null &&
-                     tag.equalsIgnoreCase(p.user.getUserName())
-            ).findAny();
-        if (profile.isPresent())
+        Optional<Profile> profile = db.<Integer, Profile>getMap(String.format(PROFILESTABLE, chat)).values().stream()
+                .filter(p -> p != null && p.user != null && tag.equalsIgnoreCase(p.user.getUserName())).findAny();
+        if (profile.isPresent()) {
             print(profile.get(), chat);
-        else
+            logger.info(profile.get().toShortString() + " was queried");
+        } else {
             silent.send(String.format(UNKNOWNARGUMENT, TAGPREFIX + tag), chat);
+            logger.info("no profiles for '" + TAGPREFIX + tag + "'");
+        }
     };
 
     /** The action related to the <code>/whois</code> command. */
@@ -406,13 +347,14 @@ public class TeleGrindr extends AbilityBot {
         final Long chat = ctx.chatId();
         final Location from = getProfile(chat, ctx.user()).location;
         final Filter filter = new Filter(ctx.arguments(), from);
-        if (from != null || !filter.isLocationNeeded())
-            print(db
-                .<Integer, Profile>getMap(String.format(PROFILESTABLE, chat))
-                .values().stream().filter(filter)
-                .toArray(Profile[]::new), chat);
-        else
+        if (from != null || !filter.isLocationNeeded()) {
+            print(db.<Integer, Profile>getMap(String.format(PROFILESTABLE, chat)).values().stream().filter(filter)
+                    .toArray(Profile[]::new), chat);
+            logger.info("query executed");
+        } else {
             silent.send(String.format(UNKNOWNARGUMENT, LOCATIONLABEL), chat);
+            logger.info("refused to filter based on distance (no position specified)");
+        }
     };
 
 }
