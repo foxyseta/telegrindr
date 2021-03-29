@@ -68,11 +68,11 @@ $ java -jar telegrindr.jar 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11 telegrindrB
 #### With Docker
 In Bash, you can build your image like this:
 ```bash
-$ docker build . -t telegrindr
+# docker build . -t telegrindr
 ```
 Then, you can run it: 
 ```bash
-docker run --rm -v ./path/to/local/dir:. -it \
+$ docker run --rm -v ./path/to/local/dir:. -it \
 -eTOKEN_ID=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11 \
 -eUSERNAME=telegrindrBot \
 -eCREATOR_ID=1234567890 \
