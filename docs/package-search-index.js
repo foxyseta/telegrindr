@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"io.github.foxyseta.telegrindr"},{"l":"io.github.foxyseta.telegrindr.bot"},{"l":"io.github.foxyseta.telegrindr.bot.data"}]
