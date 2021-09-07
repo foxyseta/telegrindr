@@ -33,6 +33,18 @@
 
   </dependencies>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <build>
      <plugins>
         <plugin>
@@ -47,7 +59,7 @@
             </archive>
           </configuration>
         </plugin>
-	<plugin>
+	    <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <version>3.2.4</version>
@@ -86,6 +98,13 @@
               </goals>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.3.0</version>
+          <configuration>
+          </configuration>
         </plugin>
       </plugins>
   </build>
